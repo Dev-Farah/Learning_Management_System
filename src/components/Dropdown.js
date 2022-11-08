@@ -4,8 +4,8 @@ import { MenuItem, Divider } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
-export default function List(props) {
-    const { listItem, label, placeholder, id, type, value, required, onChange, endAdornment } = props;
+export default function Dropdown(props) {
+    const { label, placeholder, type, value, required, onChange, dataSource, displayField, valueField } = props;
 
     return (
         <>
@@ -21,11 +21,15 @@ export default function List(props) {
                     required={required}
                     onChange={onChange}
                 >
-                    <MenuItem disabled value="">
-                        <em>None</em>
-                    </MenuItem>
+                    <MenuItem disabled value="">None</MenuItem>
                     <Divider />
-                    {listItem}
+                    {dataSource && dataSource.length > 0
+                        ? dataSource.map((e, i) => (
+                            <MenuItem key={e[valueField ? valueField : 'id']} value={e[displayField ? displayField : 'fullName']}>
+                                {e[displayField ? displayField : 'fullName']}
+                            </MenuItem>
+                        ))
+                        : null}
                 </Select>
             </FormControl>
 

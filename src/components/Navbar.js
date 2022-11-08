@@ -12,20 +12,20 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 import AdbIcon from '@mui/icons-material/Adb';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const pages = ['Student Form', 'Trainers Form', 'Blog'];
 const screens = [
-  {name: 'Admin', link: '/Admin'},
-  {name: 'Students', link: '/StdForm'},
-  {name: 'Users', link: '/users'},
+  { name: 'Students Form', to: '/stdForm' },
+  // { name: 'Users', to: '/users' },
+  { name: 'Result', to: '/result' },
 ];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
 
-function ResponsiveAppBar() {
+function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const navigate = useNavigate();
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -42,8 +42,12 @@ function ResponsiveAppBar() {
     setAnchorElUser(null);
   };
 
+  const clickNavigate = (routeTo) => {
+    navigate(routeTo);
+  };
+
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#FE9989" }}>
+    <AppBar position="static" sx={{ backgroundColor: "#2b2b42" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
@@ -51,7 +55,7 @@ function ResponsiveAppBar() {
             variant="h6"
             noWrap
             component="a"
-            href="/"
+            onClick={() => { clickNavigate('/') }}
             sx={{
               mr: 2,
               display: { xs: 'none', md: 'flex' },
@@ -94,9 +98,10 @@ function ResponsiveAppBar() {
                 display: { xs: 'block', md: 'none' },
               }}
             >
-              {pages.map((page) => (
-                <MenuItem key={page} onClick={handleCloseNavMenu}>
-                  <Typography textAlign="center">{page}</Typography>
+              {screens.map((e, i) => (
+                <MenuItem key={i} onClick={handleCloseNavMenu}>
+                  <Typography textAlign="center"
+                  onClick={() => { clickNavigate(e.to) }}>{e.name}</Typography>
                 </MenuItem>
               ))}
             </Menu>
@@ -106,7 +111,7 @@ function ResponsiveAppBar() {
             variant="h5"
             noWrap
             component="a"
-            href=""
+            onClick={() => { clickNavigate('/') }}
             sx={{
               mr: 2,
               display: { xs: 'flex', md: 'none' },
@@ -122,15 +127,13 @@ function ResponsiveAppBar() {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {screens.map((e) => (
-              <Link to={e.link}>
-              <Button
-                key={e.name}
-                // onClick={handleCloseNavMenu}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {e.name}
-              </Button>
-              </Link>
+                <Button
+                  key={e.name}
+                  onClick={() => { clickNavigate(e.to) }}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {e.name}
+                </Button>
             ))}
           </Box>
 
@@ -168,4 +171,4 @@ function ResponsiveAppBar() {
     </AppBar>
   );
 }
-export default ResponsiveAppBar;
+export default Navbar;

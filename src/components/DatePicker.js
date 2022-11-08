@@ -15,15 +15,15 @@ export default function MuiDatePicker(props) {
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DatePicker
         variant='inline'
-        format="MM/dd/yyy"
         margin='normal'
         id="date-picker"
+        format="MM/dd/yyy"
         label={label}
+        placeholder="mm/dd/yy"
+        required={required}
         value={value}
         onChange={onChange}
-        
         renderInput={(params) => <TextField {...params} />}
-
       />
     </LocalizationProvider>
     </FormControl>

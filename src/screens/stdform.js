@@ -1,126 +1,104 @@
 import React, { useState } from "react";
-import { getData, sendData, SignUp } from "../config/firebasemethods";
-// import React from "react";
-import Input from '../components/Input';
-import Navbar from "../components/Navbar";
-import Btn from '../components/Btn';
-import { Grid, Typography } from '@mui/material';
-import List from "../components/List";
-import { MenuItem, Divider } from "@mui/material";
-import MuiDatePicker from "../components/DatePicker";
+// For Snackbar
+import { useRef } from 'react';
+import SnackbarAlert from '../components/Snackbar';
+// Customized Methods
+import { sendData } from "../config/firebasemethods";
+import { setDate } from "../core/helpermethods";
+// Mui Components
 import { Container } from "@mui/system";
-import BasicTable from "../components/Table";
+import { Grid, Typography } from '@mui/material';
+// Customized Mui Components
+import Navbar from "../components/Navbar";
+import Input from '../components/Input';
+import Dropdown from "../components/Dropdown";
+import Btn from '../components/Button';
+import MuiDatePicker from "../components/DatePicker";
+
 
 export default function StdForm() {
+    // For Snackbar
+    const [snackBarMsg, setSnackBarMsg] = useState({});
+    const snackbarRef = useRef(null);
 
-    const [values, setValues] = useState({});
-    const [uid, setUid] = useState("");
-    const [stdData, setStdData] = useState("");
-    const [isFeeSubmitted, setIsFeeSubmitted] = useState(false);
-    const [isApproved, setIsApproved] = useState(false);
-    const [isActive, setIsActive] = useState(false);
+    // This object will contain submitted form data
+    const [object, setObject] = useState({});
+    const [stdData, setStdData] = useState({});
 
-    // let key = Date.now();
-    let time = `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}`;
-    let registrationDate = `${new Date().getDate()}/${new Date().getMonth() + 1}/${new Date().getFullYear()}`;
-    let registrationYear = `${new Date().getFullYear()}`;
-
-    let fillValues = (key, val) => {
-        values[key] = val;
-        setValues({ ...values })
-    }
-
-    // let [firstName, setFirstName] = useState("")
-    // let [lastName, setLastName] = useState("")
-    // let [course, setCourse] = useState()
-    // let [sec, setSec] = useState()
-    // let [contact, setContact] = useState(undefined)
-    // let [cnic, setCnic] = useState(undefined)
-    // let [fatherName, setFatherName] = useState("")
-    // let [fatherCnic, setFatherCnic] = useState(undefined)
-    // let [fatherContact, setfatherContact] = useState(undefined)
-    // // let // [emergencyContact, setEmergencyContact] = useState(undefined)
-    let [dateOfBirth, setDateOfBirth] = useState(new Date("2000-01-11"))
-
-    let courseData = [
-        {
-            id: "wm",
-            courseName: "Web and Mobile",
-        },
-        {
-            id: "ds",
-            courseName: "Data Science",
-        },
-        {
-            id: "gd",
-            courseName: "Graphic Designing",
-        }
-    ];
-
-    let secData = [
-        {
-            id: "a",
-            section: "A",
-        },
-        {
-            id: "b",
-            section: "B",
-        },
-        {
-            id: "c",
-            section: "C",
-        },
-        {
-            id: "d",
-            section: "D",
-        },
-    ];
+    // For displaying date in Datepicker field on screen
+    const [dateOfBirth, setDateOfBirth] = useState(new Date('01/01/2000'));
+    const [rollNo, setRollNo] = useState(1001); // For Roll No
 
     const handleDateChange = (date) => {
-        setDateOfBirth(date)
-        fillValues('dateOfBirth', date)
+        const dateToStr = setDate(date);  // setDate (custom method) will convert selected date to string
+        setDateOfBirth(dateToStr)
+        fillObject('dateOfBirth', dateToStr)
     }
 
-    let handleSubmit = (e) => {
-        e.preventDefault();
-
-        // values.key = key;
-        values.time = time;
-        values.registrationDate = registrationDate;
-        values.registrationYear = registrationYear;
-        setUid(values.id);
-        setIsFeeSubmitted(values.isFeeSubmitted);
-        setIsApproved(values.isApproved);
-        setIsActive(values.isActive);
-        // console.log(values);
-
-        sendData(`Student Data/`,
-            values
-        ).then((res) => {
-            console.log(res);
-            // getStdData()
-        }).catch((err) => {
-            alert(err);
-        })
+    // Saving form data in object
+    const fillObject = (key, val) => {
+        object[key] = val;
+        setObject({ ...object });
     }
 
-    const getStdData = () => {
-        getData(`Student Data/${uid}`)
+    const handleSubmit = (e) => {
+        e.preventDefault(); // Prevent page refresh on submit
+
+        // Saving some required entities inside the object
+        object.rollNo = rollNo;
+        object.age = "";
+        object.registrationDate = setDate(new Date());  // setDate (custom method) will convert date to string
+        object.isFeeSubmitted = false;
+        object.isApproved = false;
+        object.isActive = false;
+
+        // Send data to database
+        sendData(`Student Data/`, object)
             .then((res) => {
-                setStdData(res);
+                // console.log(res);
+                { snackbarRef.current.handleClick() }   // Snackbar function reference
+                setSnackBarMsg({
+                    type: "success",
+                    message: "Registered Successfully.",
+                })
+                setStdData(object);
+                console.log(stdData);
+                setObject({
+                    firstName: "",
+                    lastName: "",
+                    course: "",
+                    section: '',
+                    contact: "",
+                    cnic: "",
+                    fatherName: "",
+                    fatherCnic: "",
+                    fatherContact: "",
+                    emergencyContact: "",
+                    dateOfBirth: new Date('01/01/2000'),
+                    id: "",
+                    rollNo: "",
+                    isActive: false,
+                    isApproved: false,
+                    isFeeSubmitted: false,
+                    registrationDate: new Date(),
+                })
+                setRollNo(rollNo + 1);
             }).catch((err) => {
-                alert(err);
+                console.log(err);
+                { snackbarRef.current.handleClick() }   // Snackbar function reference
+                setSnackBarMsg({
+                    type: "error",
+                    message: "Something went wrong. Please try again.",
+                })
             })
     }
-
 
 
     return (
         <>
             <Navbar />
             <section>
-                <form
-                // onSubmit={handleSubmit}
+                <form action="" onSubmit={handleSubmit}
                 >
                     <Grid container className="formContainer" >
 
@@ -129,96 +107,117 @@ export default function StdForm() {
                         </Container>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="First Name" // value={values}
+                            <Input label="First Name" value={object.firstName}
                                 type="text" name="firstName" required={true}
-                                onChange={(e) => fillValues('firstName', e.target.value)}
+                                onChange={(e) => fillObject('firstName', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Last Name" // value={lastName}
+                            <Input label="Last Name" value={object.lastName}
                                 type="text" name="lastName" required={true}
-                                onChange={(e) => fillValues('lastName', e.target.value)}
+                                onChange={(e) => fillObject('lastName', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <List
-                                label="Courses"
+                            <Dropdown
+                                label="Course"
                                 placeholder={"Select"}
-                                // value={course}
+                                value={object.course}
                                 required={true}
-                                onChange={(e) => fillValues('course', e.target.value)}
-                                listItem={courseData && courseData.length > 0 ? courseData.map((e) => (
-                                    <MenuItem key={e.id} value={e.courseName}
-                                    >
-                                        {e.courseName}
-                                    </MenuItem>
-                                )) : null}
+                                onChange={(e) => fillObject('course', e.target.value)}
+                                dataSource={[
+                                    {
+                                        id: "wm",
+                                        fullName: "Web and Mobile",
+                                    },
+                                    {
+                                        id: "ds",
+                                        fullName: "Data Science",
+                                    },
+                                    {
+                                        id: "gd",
+                                        fullName: "Graphic Designing",
+                                    }
+                                ]}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <List
+                            <Dropdown
                                 label="Section"
                                 placeholder={"Select"}
-                                // value={sec}
+                                value={object.section}
                                 required={true}
-                                onChange={(e) => fillValues('section', e.target.value)}
-                                listItem={secData && secData.length > 0 ? secData.map((e) => (
-                                    <MenuItem key={e.id} value={e.section}
-                                    >
-                                        {e.section}
-                                    </MenuItem>
-                                )) : null}
+                                onChange={(e) => fillObject('section', e.target.value)}
+                                dataSource={[
+                                    {
+                                        id: "a",
+                                        fullName: "A",
+                                    },
+                                    {
+                                        id: "b",
+                                        fullName: "B",
+                                    },
+                                    {
+                                        id: "c",
+                                        fullName: "C",
+                                    },
+                                    {
+                                        id: "d",
+                                        fullName: "D",
+                                    },
+                                ]}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Contact" // value={contact}
+                            <Input label="Contact" value={object.contact}
                                 type="number" name="contact" required={true}
-                                onChange={(e) => fillValues('contact', e.target.value)}
+                                onChange={(e) => fillObject('contact', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="CNIC" // value={cnic}
+                            <Input label="CNIC" value={object.cnic}
                                 type="number" name="cnic" required={true}
-                                onChange={(e) => fillValues('cnic', e.target.value)}
+                                onChange={(e) => fillObject('cnic', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Father Name" // value=""
+                            <Input label="Father Name" value={object.fatherName}
                                 type="text" name="fatherName" required={true}
-                                onChange={(e) => fillValues('fatherName', e.target.value)}
+                                onChange={(e) => fillObject('fatherName', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Father CNIC" // value={fatherCnic}
-                                type="number" name="fatherCnic"
-                                onChange={(e) => fillValues('fatherCnic', e.target.value)}
+                            <Input label="Father CNIC" value={object.fatherCnic}
+                                type="number" name="fatherCnic" // required={true}
+                                onChange={(e) => fillObject('fatherCnic', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Father Contact" // value={fatherContact}
+                            <Input label="Father Contact" value={object.fatherContact}
                                 type="number" name="fatherContact" required={true}
-                                onChange={(e) => fillValues('fatherContact', e.target.value)}
+                                onChange={(e) => fillObject('fatherContact', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={2}>
-                            <Input label="Emergency Contact" // value={emergencyContact}
+                            <Input label="Emergency Contact" value={object.emergencyContact}
                                 type="number" name="emergencyContact" required={true}
-                                onChange={(e) => fillValues('emergencyContact', e.target.value)}
+                                onChange={(e) => fillObject('emergencyContact', e.target.value)}
                             />
                         </Grid>
 
                         <Grid item xs={9} sm={5} m={1} my={3}>
                             <MuiDatePicker
                                 label="Date of Birth"
+                                required={true}
                                 value={dateOfBirth}
                                 onChange={handleDateChange}
                                 KeyboardButtonProps={{
@@ -226,30 +225,26 @@ export default function StdForm() {
                                 }}
                             />
                         </Grid>
+
                         <Grid item xs={9} sm={5} m={1} my={2}>
                         </Grid>
 
                         <Container sx={{ textAlign: "center", margin: "30px 0" }}>
-                            <Btn type="submit" btnVal="Submit" onClick={handleSubmit} />
+                            <Btn type="submit" btnVal="Register" />
+                            <SnackbarAlert ref={snackbarRef} severity={snackBarMsg.type} alertMsg={snackBarMsg.message} />
                         </Container>
+
                     </Grid>
                 </form>
 
-                {uid && uid.length > 2 ?
-                    <Container sx={{ textAlign: "center", margin: "30px auto", width: "200px" }}>
-                        <Btn btnVal="Show Data" onClick={getStdData} />
-                    </Container>
-                    : null}
-
-
-                {stdData && stdData.length > 0 ?
-                    // stdData.map((e) => (
+                {/* {stdData && Object.keys(stdData).length > 0
+                    ?
                     <>
-                        <BasicTable />
-                        < Typography variant="body">{stdData.cnic}</Typography>
+                    <Typography variant="p">{stdData.firstName}</Typography>
+                    <Typography variant="p">{stdData.lastName}</Typography>
                     </>
-                    // ))
-                    : null}
+                    : null} */}
+                    
             </section>
         </>
     )

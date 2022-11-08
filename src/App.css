@@ -7,12 +7,9 @@
 }
 
 .formContainer {
-  max-width: 800px;
+  max-width: 900px;
   margin: 30px auto;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   align-items: center;
-  border-radius: 20px;
-  background-color: cornsilk;
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }

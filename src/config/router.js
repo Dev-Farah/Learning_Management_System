@@ -1,33 +1,25 @@
 import React from "react";
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-} from "react-router-dom";
-// import Login from "../screens/login";
-import StdForm from "../screens/stdform";
-import Dashboard from "../screens/dashboard";
-import NotFound from "../screens/notfound";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+// Importing All Pages
+import Home from "../screens/home";
 import Admin from "../screens/admin";
-import Users from "../screens/users";
-
+import StdForm from "../screens/stdform";
+// import Users from "../screens/users";
+import Result from "../screens/result";
+import NotFound from "../screens/notfound";
 
 export default function AppRouter() {
-
-
     return (
         <>
             <Router>
                 <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    {/* <Route path="Login" element={<Login />} /> */}
-                    <Route path="Admin" element={<Admin />} />
-                    <Route path="StdForm" element={<StdForm />} />
-                    <Route path="Users" element={<Users />} />
+                    <Route path="/" element={<Home />} />
+                    <Route path="admin/*" element={<Admin />} />
+                    <Route path="stdform" element={<StdForm />} />
+                    <Route path="result" element={<Result />} />
                     <Route path="*" element={<NotFound />} />
-
                 </Routes>
             </Router>
         </>
-    )
-}
+    );
+};
